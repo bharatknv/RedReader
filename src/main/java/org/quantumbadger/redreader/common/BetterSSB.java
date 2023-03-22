@@ -20,8 +20,10 @@ package org.quantumbadger.redreader.common;
 import android.graphics.Typeface;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
@@ -30,8 +32,11 @@ import android.text.style.URLSpan;
 import android.text.style.UnderlineSpan;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class BetterSSB {
+public class BetterSSB extends Observable {
 
 	private final SpannableStringBuilder sb;
 
@@ -172,6 +177,52 @@ public class BetterSSB {
 				}
 			}
 		}
+	}
+
+	public void append(CharSequence text) {
+		this.sb.append(text);
+		this.setChanged();
+		this.notifyObservers(this.sb);
+	}
+
+	public void replace(int start, int end, CharSequence text) {
+		this.sb.replace(start, end, text);
+		this.setChanged();
+		this.notifyObservers(this.sb);
+		/*
+		ImageSpan[] spans = ((SpannableStringBuilder) text).getSpans(0, text.length(), ImageSpan.class);
+
+		final int sbLength = end - start;
+
+		for (ImageSpan span : spans) {
+			int spanStart = ((SpannableStringBuilder) text).getSpanStart(span);
+			int spanEnd = ((SpannableStringBuilder) text).getSpanEnd(span);
+
+			int spanLength = spanEnd - spanStart;
+
+			this.sb.setSpan(span, start, start + spanLength, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+			if (spanLength < sbLength) {
+				start += spanLength;
+			}
+		}
+		*/
+	}
+
+	public void replace(CharSequence text, Object what) {
+		final int textStartIndex = TextUtils.indexOf(sb, text);
+		this.sb.setSpan(what, textStartIndex, textStartIndex + text.length(), Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+		this.setChanged();
+		this.notifyObservers(this.sb);
+	}
+
+	public boolean isEmpty() {
+		return this.sb.length() == 0;
+	}
+
+	public void setSpan(Object what, int start, int end, int flag) {
+		this.sb.setSpan(what, start, end, flag);
+		this.setChanged();
+		this.notifyObservers(this.sb);
 	}
 
 	public SpannableStringBuilder get() {
