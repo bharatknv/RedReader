@@ -43,6 +43,7 @@ public final class RedditComment implements
 	public String author;
 	public String subreddit;
 	public String author_flair_text;
+	public JsonValue author_flair_richtext;
 	public Boolean archived;
 	public Boolean likes;
 	public Boolean score_hidden;

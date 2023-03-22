@@ -19,6 +19,7 @@ package org.quantumbadger.redreader.reddit.prepared;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.SpannableStringBuilder;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,6 +42,7 @@ import org.quantumbadger.redreader.reddit.things.RedditComment;
 import org.quantumbadger.redreader.reddit.things.RedditThingWithIdAndType;
 
 import java.net.URI;
+import java.util.Observer;
 
 public class RedditRenderableComment
 		implements RedditRenderableInboxItem, RedditThingWithIdAndType {
@@ -96,7 +98,7 @@ public class RedditRenderableComment
 	}
 
 	@Override
-	public CharSequence getHeader(
+	public BetterSSB getHeader(
 			final RRThemeAttributes theme,
 			final RedditChangeDataManager changeDataManager,
 			final Context context,
@@ -165,7 +167,7 @@ public class RedditRenderableComment
 			}
 		}
 
-		final String flair = mComment.getFlair();
+		final BetterSSB flair = mComment.getFlair();
 
 		if(theme.shouldShow(PrefsUtility.AppearanceCommentHeaderItem.FLAIR)
 				&& flair != null && !flair.isEmpty()) {
@@ -174,12 +176,19 @@ public class RedditRenderableComment
 				sb.append("  ", 0);
 			}
 
-			sb.append(
-					" " + flair + General.LTR_OVERRIDE_MARK + " ",
-					BetterSSB.FOREGROUND_COLOR | BetterSSB.BACKGROUND_COLOR,
-					theme.rrFlairTextCol,
-					theme.rrFlairBackCol,
-					1f);
+			final int flairStartIndex = sb.get().length();
+
+			sb.append(flair.get());
+
+			final int flairEndIndex = sb.get().length();
+
+			final Observer observer = (observable, o) -> sb.replace(
+					flairStartIndex,
+					flairEndIndex,
+					(SpannableStringBuilder) o
+			);
+
+			flair.addObserver(observer);
 		}
 
 		if(theme.shouldShow(PrefsUtility.AppearanceCommentHeaderItem.AUTHOR)
@@ -289,7 +298,7 @@ public class RedditRenderableComment
 					1f);
 		}
 
-		return sb.get();
+		return sb;
 	}
 
 	@Override
@@ -390,7 +399,7 @@ public class RedditRenderableComment
 					.append(separator);
 		}
 
-		final String flair = mComment.getFlair();
+		final BetterSSB flair = mComment.getFlair();
 
 		if(theme.shouldShow(PrefsUtility.AppearanceCommentHeaderItem.FLAIR)
 				&& flair != null
