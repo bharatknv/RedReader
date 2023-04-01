@@ -5,6 +5,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import org.quantumbadger.redreader.common.LinkHandler
+import org.quantumbadger.redreader.jsonwrap.JsonValue
 import org.quantumbadger.redreader.reddit.things.RedditThingWithIdAndType
 import org.quantumbadger.redreader.reddit.url.PostCommentListingURL
 
@@ -20,6 +21,7 @@ data class RedditComment(
 	val author: UrlEncodedString? = null,
 	val subreddit: UrlEncodedString? = null,
 	val author_flair_text: UrlEncodedString? = null,
+	val author_flair_richtext: List<MaybeParseError<FlairEmoteData>>?= null,
 	val archived: Boolean = false,
 	val likes: Boolean? = null,
 	val score_hidden: Boolean = false,
@@ -73,6 +75,14 @@ data class RedditComment(
 		val x: String,
 		val y: String,
 		val u: String? = null
+	) : Parcelable
+
+	@Serializable
+	@Parcelize
+	data class FlairEmoteData(
+		val e: String,
+		val a: String,
+		val u: String
 	) : Parcelable
 
 	override fun getIdAlone() = id
